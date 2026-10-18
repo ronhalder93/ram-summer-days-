@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<style>
+*{box-sizing:border-box}body{margin:0;padding:7px;background:#090b12;color:#fff;font-family:Arial,sans-serif}
+.board{background:#101321;border:1px solid #272c43;border-radius:14px;padding:7px 4px 10px}
+.row{display:flex;gap:4px;justify-content:center;margin:5px 0}
+.key{flex:1;min-width:0;height:43px;border:1px solid var(--c);border-radius:7px;background:linear-gradient(145deg,#242638,#10121d);color:var(--c);font-size:14px;font-weight:bold;text-shadow:0 0 7px var(--c);box-shadow:0 0 9px color-mix(in srgb,var(--c) 55%,transparent),inset 0 0 7px color-mix(in srgb,var(--c) 16%,transparent);transition:box-shadow .25s,background .2s;padding:0}
+.key:active{background:color-mix(in srgb,var(--c) 30%,#11131c)}
+.wide{flex:1.4;font-size:11px}.space{flex:4;font-size:11px}
+</style></head>
+<body>
+<div class="board" id="board">
+ <div class="row" data-row="QWERTYUIOP"></div>
+ <div class="row" data-row="ASDFGHJKL"></div>
+ <div class="row" data-row="ZXCVBNM"></div>
+ <div class="row">
+  <button class="key wide" data-act="shift">⇧</button>
+  <button class="key" data-char=",">,</button>
+  <button class="key space" data-char=" ">SPACE</button>
+  <button class="key" data-char=".">.</button>
+  <button class="key wide" data-act="enter">↵</button>
+  <button class="key wide" data-act="back">⌫</button>
+ </div>
+</div>
+<script>
+const palettes={
+ neon:['#ff4c91','#ffad42','#f8ed55','#51ff9a','#42eaff','#5a8cff','#d56aff','#ff5cf4','#64ffc8','#ff795e'],
+ ice:['#8ef7ff','#63caff','#8daaff','#c5f5ff','#65e6ff','#82aaff','#d2ffff','#6bdcff','#a0b9ff','#7ffff0'],
+ fire:['#ff4545','#ff793d','#ffd04a','#ff3434','#ffab42','#ffef70','#ff5252','#ff914d','#ffe05b','#ff6868'],
+ purple:['#ef78ff','#bb75ff','#8874ff','#ff7fd4','#d38aff','#9b8aff','#f5a1ff','#b88cff','#ff8adf','#9f7bff']
+};
+let theme='neon',shift=false;
+document.querySelectorAll('[data-row]').forEach(row=>{
+ for(const ch of row.dataset.row){
+  const b=document.createElement('button');b.className='key';b.textContent=ch;
+  b.dataset.char=ch.toLowerCase();row.appendChild(b);
+ }
+});
+function paint(){
+ let i=0;document.querySelectorAll('.key').forEach(b=>{b.style.setProperty('--c',palettes[theme][i++%palettes[theme].length]);});
+}
+window.applyNativeTheme=function(t){if(palettes[t])theme=t;paint();};
+document.getElementById('board').addEventListener('click',e=>{
+ const b=e.target.closest('button');if(!b)return;
+ if(b.dataset.act==='shift'){shift=!shift;document.querySelectorAll('[data-row] .key').forEach(k=>{const c=k.dataset.char;k.textContent=shift?c.toUpperCase():c.toUpperCase();});return;}
+ if(b.dataset.act==='back'){if(window.AndroidKeyboard)AndroidKeyboard.backspace();return;}
+ if(b.dataset.act==='enter'){if(window.AndroidKeyboard)AndroidKeyboard.enter();return;}
+ if(b.dataset.char!==undefined&&window.AndroidKeyboard){
+  AndroidKeyboard.type(b.dataset.char);
+ }
+});
+paint();
+</script></body></html>
